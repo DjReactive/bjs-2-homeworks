@@ -20,36 +20,33 @@ class PrintEditionItem {
   }
 }
 class Magazine extends PrintEditionItem {
-  constructor (name, releaseDate, pagesCount, state = 100, type = "magazine") {
-    super(name, releaseDate, pagesCount, state);
-    this.type = type;
+  constructor (name, releaseDate, pagesCount, state, type = "magazine") {
+    super(name, releaseDate, pagesCount, state, type);
   }
 }
 class Book extends PrintEditionItem {
-  constructor (author, name, releaseDate, pagesCount, state = 100, type = "book") {
-    super(name, releaseDate, pagesCount, state);
+  constructor (author, name, releaseDate, pagesCount, state, type = "book") {
+    super(name, releaseDate, pagesCount, state, type);
     this.author = author;
-    this.type = type;
+    console.log(this.type);
   }
 }
 class NovelBook extends Book {
-  constructor (author, name, releaseDate, pagesCount, state = 100, type = "novel") {
-    super(author, name, releaseDate, pagesCount, state);
-    this.type = type;
+  constructor (author, name, releaseDate, pagesCount, state, type) {
+    super(author, name, releaseDate, pagesCount, state, type = "novel");
   }
 }
 class FantasticBook extends Book {
-  constructor (author, name, releaseDate, pagesCount, state = 100, type = "fantastic") {
-    super(author, name, releaseDate, pagesCount, state);
-    this.type = type;
+  constructor (author, name, releaseDate, pagesCount, state, type) {
+    super(author, name, releaseDate, pagesCount, state, type = "fantastic");
   }
 }
 class DetectiveBook extends Book {
-  constructor (author, name, releaseDate, pagesCount, state = 100, type = "detective") {
-    super(author, name, releaseDate, pagesCount, state);
-    this.type = type;
+  constructor (author, name, releaseDate, pagesCount, state, type) {
+    super(author, name, releaseDate, pagesCount, state, type = "detective");
   }
 }
+
 
 // 2 Задание
 class Library {
@@ -60,24 +57,27 @@ class Library {
   addBook (book) {
     if (book.state > 30) this.books.push(book);
   }
-  findBookBy (type, value, idx = false) {
-    let found = false, findBook = null, arr = [];
-    this.books.forEach((item) => {
-      if ( (type === "name" || type === "author") && (item[type].indexOf(value) >= 0) ) {
-        found = true;
-      } else {
-        if (item[type] === value) found = true;
+  findBookBy (type, value, retArray = false) {
+    let item, name, findBook = null;
+
+    for (let i=0; i < this.books.length; i++) {
+      item = this.books[i];
+      name =  item[type];
+      if ( ((type === "name" || type === "author") && (name.indexOf(value) >= 0)) || (name === value) ) {
+        findBook = retArray ? { index: name.indexOf(value), book: item } : item;
+        break;
       }
-      if (found) return idx ? this.books.indexOf(item) : arr.push(item);
-    })
-    if (arr.length > 0) findBook = arr[0];  // Костыль. Не смог с помощью forEach выывести нужный объект item по-другому
+    }
     return findBook;
   }
   giveBookByName (bookName) {
-    let book = this.findBookBy("name", bookName);
-    let index = this.findBookBy("name", bookName, true);
-    if (index > -1 && book !== null) this.books.splice(index, 1);
-    return book;
+    let giveBook = this.findBookBy("name", bookName, true);
+
+    if (giveBook !== null) {
+      this.books.splice(giveBook.index, 1);
+      return giveBook.book;
+    }
+    return null;
   }
 }
 
