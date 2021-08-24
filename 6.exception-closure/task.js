@@ -10,34 +10,29 @@ function parseCount (number) {
 
 function validateCount (number) {
   try {
-    number = parseCount (number);
+    return parseCount (number);
   }
   catch (err) {
     return err;
   }
-  finally {}
-  return number;
 }
 
 // 2
 class Triangle {
   constructor (a, b, c) {
     this.sides = [a, b, c];
-    if (!this.validTriangle(a, b, c)) {
-      this.error = true;
+    this.sides.sort((n, m) => n - m);
+    if (this.sides[2] > this.sides[0] + this.sides[1])
       throw new Error("Треугольник с такими сторонами не существует");
-    }
   }
 
   getPerimeter () {
-    if (this.error) throw "Ошибка! Треугольник не существует";
     let sum = 0;
-    this.sides.forEach((item) => sum +=item );
+    this.sides.forEach((item) => sum += item );
     return sum;
   }
 
   getArea () {
-    if (this.error) throw "Ошибка! Треугольник не существует";
     let s, p = 0.5 * this.getPerimeter();
     let abcSqrt = p - this.sides[0];
     for (let i = 1; i < this.sides.length; i++) {
@@ -46,27 +41,17 @@ class Triangle {
     s = Math.sqrt(p * abcSqrt);
     return Number(s.toFixed(3));
   }
-
-  validTriangle (a, b, c) {
-    let sum, max = Math.max(a, b, c);
-    if (max <= 0 || Math.min(a, b, c) <= 0) false;
-    switch (max) {
-      case a: { sum = b + c; break; }
-      case b: { sum = a + c; break; }
-      case c: { sum = a + b; break; }
-    }
-    if (sum < max) return false;
-    return true;
-  }
 }
 
 function getTriangle (a, b, c) {
-  let getTriangle;
   try {
-    getTriangle = new Triangle(a, b, c);
+    return new Triangle(a, b, c);
   }
   catch (err) {
-    return new Error (err);
+    return {
+      getPerimeter() { return "Ошибка! Треугольник не существует" },
+      getArea() { return "Ошибка! Треугольник не существует" }
+    }
   }
   return getTriangle;
 }
