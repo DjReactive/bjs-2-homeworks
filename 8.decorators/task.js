@@ -1,18 +1,14 @@
 function cachingDecoratorNew(func) {
-  let cache = {array: []};
+  let array = [], cache = {};
 
   return function (...args) {
     const hash = args.join(',');
-    if (hash in cache) {
-      return `Из кэша: ${cache[hash]}`;
-    }
-    else {
-      const arr = cache.array;
-      if (arr.length >= 5) delete cache[arr.shift()];
-      arr.push(hash);
-      cache[hash] = func(...args);
-      return `Вычисляем: ${cache[hash]}`;
-    }
+    if (hash in cache) return `Из кэша: ${cache[hash]}`;
+
+    if (array.length >= 5) delete cache[array.shift()];
+    array.push(hash);
+    cache[hash] = func(...args);
+    return `Вычисляем: ${cache[hash]}`;
   }
 }
 
@@ -28,7 +24,7 @@ function debounceDecoratorNew(func, ms) {
       clearTimeout(timerID);
       console.log("Сигнал проигнорирован");
     }
-    timerID = setTimeout(()=> { isWait = false; }, ms);
+    timerID = setTimeout(()=> { func(); isWait = false; }, ms);
   }
 }
 
@@ -36,13 +32,15 @@ function debounceDecorator2(func, ms) {
   let count = 0, isWait = false;
 
   function sendMessage() {
+    console.log(isWait)
     if (!isWait) {
       func();
-      setTimeout(()=> { isWait = false; }, ms);
+      sendMessage.counter = ++count;
+      setTimeout(()=> { func(); sendMessage.counter = ++count; isWait = false; }, ms);
       isWait = true;
     }
-    sendMessage.counter = ++count;
   }
   sendMessage.counter = 0;
+
   return sendMessage;
 }
