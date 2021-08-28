@@ -7,10 +7,10 @@ class AlarmClock {
     if (id === null) throw new Error("Идентификатор не был передан");
     if (this.alarmCollection.some((alarm) => alarm.id === id)) {
       console.error("Идентификатор уже сущесвтует");
-      return false;
     }
-    this.alarmCollection.push({time: time, callback: callback, id: id});
-    return true;
+    else {
+      this.alarmCollection.push({time, callback, id});
+    }
   }
   removeClock (id) {
     this.alarmCollection = this.alarmCollection.filter(arr => arr.id !== id);
@@ -22,26 +22,30 @@ class AlarmClock {
     return `${hours}:${minutes}`;
   }
   start () {
-    this.alarmCollection.every((alarm) => {
-      if (alarm.id === null) alarm.id = setInterval(() => checkClock(alarm), 1000);
+    this.alarmCollection.forEach((alarm) => {
+      if (this.timerId === null) this.timerId = setInterval(() => this.checkClock(), 1000);
     });
   }
   stop () {
-    this.alarmCollection.every((alarm) => {
-      if (alarm.id !== null) {
-        clearInterval(alarm.id);
-        alarm.id = null;
+    this.alarmCollection.forEach((alarm) => {
+      if (this.timerId !== null) {
+        clearInterval(this.timerId);
+        this.timerId = null;
       }
     });
   }
   printAlarms () {
-    this.alarmCollection.forEach((alarm) => `Звонок ID ${alarm.id} запланирован на время ${alarm.time}`)
+    this.alarmCollection.forEach((alarm) => console.log(`Звонок ID ${alarm.id} запланирован на время ${alarm.time}`));
   }
   clearAlarms () {
     this.alarmCollection.forEach((alarm) => clearInterval(alarm.id));
     this.alarmCollection = [];
   }
-  checkClock (alarm) {
-    if (alarm.time === getCurrentFormattedTime()) return alarm.callback;
+  checkClock () {
+    this.alarmCollection.forEach((alarm) => {
+      if (alarm.time === this.getCurrentFormattedTime()) {
+        alarm.callback.call(alarm);
+      }
+    });
   }
 }
